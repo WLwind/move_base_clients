@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     goal.target_pose.pose.position.z=0.0;
     tf::Quaternion tfq;
     geometry_msgs::Quaternion msgq;
-//    tfq.setRPY(0.0, 0.0, 0.0);//rpy to quaternion
+    tfq.setRPY(0.0, 0.0, 0.0);//rpy to quaternion
     if(argc>=2)
     {
         goal.target_pose.pose.position.x=atof(argv[1]);
@@ -59,14 +59,13 @@ int main(int argc, char* argv[])
             if(argc>=4)
             {
                 tfq.setRPY(0.0, 0.0, atof(argv[3]));//set rpy to quaternion
-                tf::quaternionTFToMsg(tfq,msgq);//tf quaternion to msgs quaternion
             }
         }
-    }    
+    }
+    tf::quaternionTFToMsg(tfq,msgq);//tf quaternion to msgs quaternion
     goal.target_pose.pose.orientation=msgq;
     ROS_INFO("Sending goal...");
     ac.sendGoal(goal,done_cbf,active_cbf,feedback_cbf);//send goal
     ros::spin();
-
     return 0;
 }
