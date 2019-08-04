@@ -37,16 +37,16 @@ void MoveBaseClientNode::setGoal(double x=0.0,double y=0.0,double theta=0.0)
 {
     try
     {
-        tflistener.waitForTransform("/map", "/base_footprint", ros::Time(0), ros::Duration(10.0) );//wait for tf
-        tflistener.lookupTransform("/map", "/base_footprint",ros::Time(0), start_point_transform);//save tf
-        ROS_INFO("The transform from /map to /base_footprint has been heard.");
+        tflistener.waitForTransform("map", "base_footprint", ros::Time(0), ros::Duration(10.0) );//wait for tf
+        tflistener.lookupTransform("map", "base_footprint",ros::Time(0), start_point_transform);//save tf
+        ROS_INFO("The transform from map to base_footprint has been heard.");
     }
     catch (tf::TransformException &ex)
     {
         ROS_ERROR("%s",ex.what());
         ros::shutdown();
     }
-    journey=sqrt(pow(start_point_transform.getOrigin().x()-x,2)+pow(start_point_transform.getOrigin().y()-y,2));//计算起点到终点的距离
+    journey=sqrt(pow(start_point_transform.getOrigin().x()-x,2)+pow(start_point_transform.getOrigin().y()-y,2));//calculate the distance from starting point ot the goal
     ROS_INFO("The starting point is (%.2f,%.2f).The target point is(%.2f,%.2f). The distance between them is %.2fm",start_point_transform.getOrigin().x(),start_point_transform.getOrigin().y(),x,y,journey);
     last_position[0]=start_point_transform.getOrigin().x();//save the position as the last one
     last_position[1]=start_point_transform.getOrigin().y();
