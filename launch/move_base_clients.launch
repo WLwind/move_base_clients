@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="move_base_node" default="move_base"/>
+    <arg name="move_base_action" default="move_base"/>
+    <arg name="use_amcl" default="false"/>
+    <arg name="enable_clear_costmap" default="false"/>
+    <arg name="use_turtlebot3_buzzer" default="false"/>
+    <arg name="x" default="0"/>
+    <arg name="y" default="0"/>
+    <arg name="theta" default="0"/>
+    <node name="move_base_client" pkg="move_base_clients" type="client_with_class" args="$(arg x) $(arg y) $(arg theta) $(arg move_base_node) $(arg move_base_action)" output="screen">
+        <param name="use_amcl" value="$(arg use_amcl)"/>
+        <param name="enable_clear_costmap" value="$(arg enable_clear_costmap)"/>
+        <param name="use_turtlebot3_buzzer" value="$(arg use_turtlebot3_buzzer)"/>
+    </node>
+</launch>
