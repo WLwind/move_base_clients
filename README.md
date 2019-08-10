@@ -14,9 +14,16 @@ Set this true if you want the client to call clear costmap service when the plan
 4. use_amcl  
 Set this true if you want to update the localization of AMCL when the robot moves slow. Sometimes because of incorrect localization, the global planner is not albe to make an appropriate trajectory for the robot and that makes the robot move slow or oscillate. So in this case, this option can make the AMCL update without moving a certain distance or angle. **This option should only be used when you run AMCL as the localization module.**  
 5. use_turtlebot3_buzzer  
-If you are working with a [Turtlebot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/overview/), you can set this argument true. The robot can play a sound when it finished the job. Have fun!  
+If you are working with a [Turtlebot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/overview/), you can set this argument true. The robot can play a sound when it finishes the job. Have fun!  
 6. x y theta  
 The position and orientation of the goal.  
+### Dynamic reconfigure
+1. clear_costmap_threshold_dist  
+The distance threshold to start clearing constamps from the starting point.  
+2. clear_costmap_active_time  
+After these seconds if the robot doesn't get out of the radius, the clear_costmaps service will be activate.  
+3. nmu_request_timer  
+Reset number for the timer of nomotion update of amcl.  
 ## Executables
 * simple_client  
 A simple C++ client you can easily use with rosrun command. e.g.  
