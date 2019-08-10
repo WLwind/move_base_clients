@@ -25,6 +25,9 @@ MoveBaseClientNode::MoveBaseClientNode(std::string node_name,std::string action_
         {
             buzzer_pub.reset(new ros::Publisher(nh.advertise<turtlebot3_msgs::Sound>("/sound",10)));
         }
+        dynamic_recfg_=boost::make_shared< dynamic_reconfigure::Server<move_base_clients::MoveBaseClientNodeConfig> >(nh_private);
+        dynamic_reconfigure::Server<move_base_clients::MoveBaseClientNodeConfig>::CallbackType cb = boost::bind(&MoveBaseClientNode::reconfigureCB, this, _1, _2);
+        dynamic_recfg_->setCallback(cb);//setup dynamic_reconfigure
     }
     else
     {
@@ -62,6 +65,7 @@ void MoveBaseClientNode::setGoal(double x=0.0,double y=0.0,double theta=0.0)
     goal.target_pose.pose.orientation=msgq;
     ROS_INFO("Sending goal...");
     ac.sendGoal(goal,std::bind(&MoveBaseClientNode::doneCb,this,std::placeholders::_1,std::placeholders::_2),std::bind(&MoveBaseClientNode::activeCb,this),std::bind(&MoveBaseClientNode::feedbackCb,this,std::placeholders::_1));//send goal
+    return;
 }
 
 void MoveBaseClientNode::doneCb(const actionlib::SimpleClientGoalState& state,const move_base_msgs::MoveBaseResultConstPtr& result_ptr)
@@ -90,12 +94,18 @@ void MoveBaseClientNode::doneCb(const actionlib::SimpleClientGoalState& state,co
         ROS_INFO("Play sound.");
         buzzer_pub->publish(buzzer);//buzzer plays sound
     }
+    if(shutdown_when_finish)//shut down the node or not
+    {
+        ros::shutdown();
+    }
+    return;
 }
 
 void MoveBaseClientNode::activeCb()
 {
     begin=ros::Time::now().toSec();//save the starting time
     ROS_INFO("The robot starts working.");
+    return;
 }
 
 void MoveBaseClientNode::feedbackCb(const move_base_msgs::MoveBaseFeedbackConstPtr& feedback_ptr)
@@ -104,7 +114,7 @@ void MoveBaseClientNode::feedbackCb(const move_base_msgs::MoveBaseFeedbackConstP
     dist=sqrt(pow(feedback_ptr->base_position.pose.position.x-goal.target_pose.pose.position.x,2)+pow(feedback_ptr->base_position.pose.position.y-goal.target_pose.pose.position.y,2));
     ROS_INFO("coordinate:(%.2f,%.2f).%.2fm to the goal.%.1f%%",feedback_ptr->base_position.pose.position.x,feedback_ptr->base_position.pose.position.y,dist,100.0-dist/journey*100);
 
-    if(clear_costmap.get()!=nullptr&&journey-dist<0.3&&bclearmap==false&&ros::Time::now().toSec()-begin>5.0)//clear cost map if the robot doesn't get 30cm away from the starting point with in 5 seconds
+    if(clear_costmap.get()!=nullptr&&journey-dist<clear_costmap_threshold_dist&&bclearmap==false&&ros::Time::now().toSec()-begin>clear_costmap_active_time)//clear cost map if the robot doesn't get 30cm away from the starting point with in 5 seconds
     {
         std_srvs::Empty cl_cm;
         if(clear_costmap->call(cl_cm))
@@ -125,7 +135,7 @@ void MoveBaseClientNode::feedbackCb(const move_base_msgs::MoveBaseFeedbackConstP
         if(nmu_sc->call(nmu))
         {
             ROS_WARN("amcl: Request nomotion update!");
-            request_timer=50;//set timer to 50，avoiding the service to be called too frequently
+            request_timer=nmu_request_timer;//set timer to 50，avoiding the service to be called too frequently
         }
         else
             ROS_WARN("amcl: Fail to update position without motion!");
@@ -136,6 +146,7 @@ void MoveBaseClientNode::feedbackCb(const move_base_msgs::MoveBaseFeedbackConstP
     }
     last_position[0]=feedback_ptr->base_position.pose.position.x;//update the last feedback position
     last_position[1]=feedback_ptr->base_position.pose.position.y;
+    return;
 }
 
 move_base_msgs::MoveBaseGoal MoveBaseClientNode::getGoal() const
@@ -145,7 +156,8 @@ move_base_msgs::MoveBaseGoal MoveBaseClientNode::getGoal() const
 
 bool MoveBaseClientNode::waitResult(int sec)
 {
-    return ac.waitForResult(ros::Duration(sec));
+    shutdown_when_finish=false;//do not shut down when finished
+    return ac.waitForResult(ros::Duration(sec));//blocking
 }
 
 int MoveBaseClientNode::getResult() const
@@ -170,4 +182,14 @@ int MoveBaseClientNode::getResult() const
         std::cout<<"return 3"<<std::endl;
         return 3;
     }
+}
+
+void MoveBaseClientNode::reconfigureCB(move_base_clients::MoveBaseClientNodeConfig& config, uint32_t level)
+{
+    ROS_INFO("dynamic_reconfigure updates.");
+    clear_costmap_threshold_dist=config.clear_costmap_threshold_dist;
+    clear_costmap_active_time=config.clear_costmap_active_time;
+    nmu_request_timer=config.nmu_request_timer;
+    ROS_INFO("clear_costmap_threshold_dist = %.3f m. clear_costmap_active_time = %.1f s. nmu_request_timer = %d.",clear_costmap_threshold_dist,clear_costmap_active_time,nmu_request_timer);
+    return;
 }

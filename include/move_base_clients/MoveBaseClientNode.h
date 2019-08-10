@@ -1,4 +1,4 @@
-#pragma once//c++11
+#pragma once
 
 #include <iostream>
 #include <ros/ros.h>
@@ -7,8 +7,10 @@
 #include <tf/transform_listener.h>//tf
 #include <turtlebot3_msgs/Sound.h>//turtlebot3 buzzer
 #include <std_srvs/Empty.h>//amcl or clearcostmap service
+#include <dynamic_reconfigure/server.h>
+#include <move_base_clients/MoveBaseClientNodeConfig.h>//for ros dynamic_reconfigure
 
-using MoveBaseClient=actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>;//C++11
+using MoveBaseClient=actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>;
 
 class MoveBaseClientNode
 {
@@ -23,6 +25,9 @@ public:
     bool waitResult(int sec=60);//wait for action result, 60 seconds as default
     int getResult() const;//get action result. 0(succeeded), 1(aborted), 2(preempted), 3(others)
 
+protected:
+    void reconfigureCB(move_base_clients::MoveBaseClientNodeConfig& config, uint32_t level);//dynamic_reconfigure callback
+
 private:
     ros::NodeHandle nh;
     ros::NodeHandle nh_private{"~"};//private node handle for reading parameters
@@ -34,11 +39,15 @@ private:
     std::unique_ptr<ros::ServiceClient> clear_costmap, nmu_sc;//move_base clear costmap client, amcl nomotion update service client
     std::unique_ptr<ros::Publisher> buzzer_pub;//publisher for turtlebot3 buzzer
     std::string move_base_node_name;//name of the node, it's necessary if you want to use clear_costmap
+    boost::shared_ptr< dynamic_reconfigure::Server<move_base_clients::MoveBaseClientNodeConfig> > dynamic_recfg_;//!< Dynamic reconfigure server to allow config modifications at runtime
     double journey{0.1};//the distance from the starting point to the goal
     double dist{0.1},dist_last{0.2};//distance to the goal，distance to the goal obtain from last feedback callback
     int request_timer{50};//the times of feedback callback activated, it will decrease progressiely, used for amcl nomotion update
     bool bclearmap{false};//clear costmap sign
     double begin{ros::Time::now().toSec()};//starting time
     double last_position[2]{0.0,0.0};//last feedback position coordinate
-    bool enable_clear_costmap{false}, use_amcl{false}, use_turtlebot3_buzzer{false};
+    bool enable_clear_costmap{false}, use_amcl{false}, use_turtlebot3_buzzer{false};//sign of param
+    double clear_costmap_threshold_dist{0.3}, clear_costmap_active_time{5.0};//clear_costmap reconfigure param
+    int nmu_request_timer{50};//no motion update timer for reconfigure
+    bool shutdown_when_finish{true};//whether you want the node to be shut down when the goal finish
 };

@@ -25,5 +25,6 @@ int main(int argc, char *argv[])
     node_ptr->setGoal(argc>1?atof(argv[1]):0.0,argc>2?atof(argv[2]):0.0,argc>3?atof(argv[3]):0.0);
     move_base_msgs::MoveBaseGoal read_goal(node_ptr->getGoal());//for print
     ROS_INFO("The destination is (%.2f,%.2f)",read_goal.target_pose.pose.position.x,read_goal.target_pose.pose.position.y);
-    return node_ptr->waitResult(60)?node_ptr->getResult():3;
+    ros::spin();
+    return node_ptr->getResult();//return the result
 }
