@@ -35,3 +35,5 @@ A simple Python client you can easily use with rosrun command. e.g.
 A complex C++ client. You'd better start it with **move_base_clients.launch** 
 * web_nav.html  
 A webpage navigation client which you can open it with a web browser. You can interact with the webpage like RViz. For more details, please visit [this tutorial](http://wiki.ros.org/nav2djs/Tutorials/CreatingABasicNav2DWidget).  
+* client_with_smach.py  
+A Python client with state machine smach, which contains a menu of options.  
