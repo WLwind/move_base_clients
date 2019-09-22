@@ -12,10 +12,7 @@ import geometry_msgs.msg
 import tf
 from actionlib import *
 from actionlib_msgs.msg import *
-import turtlebot3_msgs.msg
-import geometry_msgs.msg
 import std_srvs.srv
-
 
 class InputOption(smach.State):
     """option menu"""
@@ -23,7 +20,7 @@ class InputOption(smach.State):
         super(InputOption,self).__init__(outcomes=['go','go_out','coordinate'],output_keys=['input_numb'])
     
     def execute(self,userdata):
-        dnum=raw_input('Please select the options:\n0.Go to the origin;\n1.Go to the base;\n2.Go to the door;\n3.Move to coordinate;\n4.Exit\n>')
+        dnum=raw_input('Please select the options:\n0.Go to position0;\n1.Go to position1;\n2.Go to position2;\n3.Move to coordinate;\n4.Exit\n>')
         if dnum=='4':
             print('Exit now.')
             return 'go_out'
@@ -59,7 +56,7 @@ def main():
     # Create a SMACH state machine
     sm0 = smach.StateMachine(outcomes=['succeeded','aborted','preempted'])
     # Set a list of goals
-    sm0.userdata.goal_list=[[0.0,0.0,0.0],[-0.165,-0.69,0.9],[2.65,-1.34,2.2]]
+    sm0.userdata.goal_list=[[0.0,0.0,0.0],[-0.165,-0.69,0.9],[2.65,-1.34,2.2]] #coordinates of positions
     sm0.userdata.goal_index=0
 
     with sm0:
