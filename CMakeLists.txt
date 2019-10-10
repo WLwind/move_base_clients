@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   tf
   dynamic_reconfigure
+  turtlebot3_msgs
 )
 
 ## System dependencies are found with CMake's conventions

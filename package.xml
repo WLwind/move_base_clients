@@ -79,7 +79,7 @@
   <exec_depend>std_srvs</exec_depend>
   <exec_depend>tf</exec_depend>
   <exec_depend>dynamic_reconfigure</exec_depend>
-
+  <depend>turtlebot3_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
