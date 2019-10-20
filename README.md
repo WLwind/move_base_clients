@@ -1,9 +1,10 @@
 # move_base_clients
 A ROS package which contains several clients for move_base navigation.  
-This package provides move_base clients for different lauguages, such as C++, Python, HTML. You can access move_base in different ways. And the launch files can help you to addapt the clients with your unique robot.  
+This package provides move_base clients for different lauguages, such as C++, Python, HTML. You can access move_base in different ways. And the launch files can help you to addapt parameters of the clients with your unique robot.  
 ## Launch files
 * move_base_clients.launch  
-It's a launch file for C++ client with class. Set the arguments for your robot.  
+It's a launch file for C++ client with class. Set the arguments for your robot. e.g.  
+`roslaunch move_base_clients move_base_clients.launch move_base_node:=move_base move_base_action:=move_base use_amcl:=false enable_clear_costmap:=false use_turtlebot3_buzzer:=false x:=1.0 y:=1.5 theta:=-1.57`  
 ### Arguments
 1. move_base_node  
 The name of move_base ROS node.
@@ -17,11 +18,10 @@ Set this true if you want to update the localization of AMCL when the robot move
 If you are working with a [Turtlebot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/overview/), you can set this argument true. The robot can play a sound when it finishes the job. Have fun!  
 6. x y theta  
 The position and orientation of the goal.  
-### Dynamic reconfigure
+## Dynamic reconfigure
 1. clear_costmap_threshold_dist  
-The distance threshold to start clearing constamps from the starting point.  
 2. clear_costmap_active_time  
-After these seconds if the robot doesn't get out of the radius, the clear_costmaps service will be activate.  
+If the robot doesn't get clear_costmap_threshold_dist meters away from the start position within clear_costmap_active_time seconds, the clear_costmaps service will be called.  
 3. nmu_request_timer  
 Reset number for the timer of nomotion update of amcl.  
 ## Executables
@@ -32,8 +32,9 @@ A simple C++ client you can easily use with rosrun command. e.g.
 A simple Python client you can easily use with rosrun command. e.g.  
 `rosrun move_base_clients client.py 3.5 -0.34 -3.14`
 * client_with_class  
-A complex C++ client. You'd better start it with **move_base_clients.launch** 
+A complex C++ client. You'd better start it with **move_base_clients.launch**.  
 * web_nav.html  
 A webpage navigation client which you can open it with a web browser. You can interact with the webpage like RViz. For more details, please visit [this tutorial](http://wiki.ros.org/nav2djs/Tutorials/CreatingABasicNav2DWidget).  
 * client_with_smach.py  
-A Python client with state machine smach, which contains a menu of options.  
+A Python client with state machine smach, which contains a menu of options. e.g.  
+`rosrun move_base_clients client_with_smach.py`  
