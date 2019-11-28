@@ -11,24 +11,61 @@
 #include <move_base_clients/MoveBaseClientNodeConfig.h>//for ros dynamic_reconfigure
 
 using MoveBaseClient=actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>;
-
+/**
+* This class implements an action client for standard ROS move_base node.
+*/
 class MoveBaseClientNode
 {
 public:
+    /**
+    * @brief Constructor
+    */
     MoveBaseClientNode(std::string node_name=std::string("move_base"),std::string action_name=std::string("move_base"));//constructor with action name
+    /**
+    * @brief Destructor
+    */
     virtual ~MoveBaseClientNode(){}
-    void setGoal(double,double,double);//set navigation goal (x,y,θ) (m,m,rad)
-    void doneCb(const actionlib::SimpleClientGoalState& state,const move_base_msgs::MoveBaseResultConstPtr& result_ptr);//action done callback
-    void activeCb();//action active callback
-    void feedbackCb(const move_base_msgs::MoveBaseFeedbackConstPtr& feedback_ptr);//action feedback callback
-    move_base_msgs::MoveBaseGoal getGoal() const;//get navigation goal
-    bool waitResult(int sec=60);//wait for action result, 60 seconds as default
+    /**
+    * @brief Set navigation goal (x,y,θ) (m,m,rad)
+    * @param x Coordinate X of the goal pose
+    * @param y Coordinate Y of the goal pose
+    * @param theta Yaw of the goal pose
+    */
+    void setGoal(double,double,double);
+    /**
+    * @brief Get navigation goal
+    */
+    move_base_msgs::MoveBaseGoal getGoal() const;
+    /**
+    * @brief Wait for action result, 60 seconds as default
+    * @param sec Seconds to wait for the action to finish
+    * @return True if the action finishes in time, false if the action runs out of time
+    */
+    bool waitResult(int sec=60);
+    /**
+    * @brief Get action result
+    * @return 0(succeeded), 1(aborted), 2(preempted), 3(others)
+    */
     int getResult() const;//get action result. 0(succeeded), 1(aborted), 2(preempted), 3(others)
 
-protected:
-    void reconfigureCB(move_base_clients::MoveBaseClientNodeConfig& config, uint32_t level);//dynamic_reconfigure callback
-
 private:
+    /**
+    * @brief Action done callback function
+    */
+    void doneCb(const actionlib::SimpleClientGoalState& state,const move_base_msgs::MoveBaseResultConstPtr& result_ptr);
+    /**
+    * @brief Action active callback function
+    */
+    void activeCb();
+    /**
+    * @brief Action feedback callback function
+    */
+    void feedbackCb(const move_base_msgs::MoveBaseFeedbackConstPtr& feedback_ptr);
+    /**
+    * @brief Dynamic_reconfigure callback function
+    */
+    void reconfigureCB(move_base_clients::MoveBaseClientNodeConfig& config, uint32_t level);
+
     ros::NodeHandle nh;
     ros::NodeHandle nh_private{"~"};//private node handle for reading parameters
     MoveBaseClient ac{"move_base", true};//action client, default name is move_base
@@ -50,4 +87,4 @@ private:
     double clear_costmap_threshold_dist{0.3}, clear_costmap_active_time{5.0};//clear_costmap reconfigure param
     int nmu_request_timer{50};//no motion update timer for reconfigure
     bool shutdown_when_finish{true};//whether you want the node to be shut down when the goal finish
-};
+};//end class
