@@ -38,3 +38,5 @@ A webpage navigation client which you can open it with a web browser. You can in
 * client_with_smach.py  
 A Python client with state machine smach, which contains a menu of options. e.g.  
 `rosrun move_base_clients client_with_smach.py`  
+* publish_point.py  
+A Python auxiliary client which you can use rviz tool __Publish Point__ to set goals in sequence. The robot will head to the next goal when it arrives current goal.
